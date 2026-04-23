@@ -25,7 +25,8 @@ module.exports = (bot) => {
         if (index < 0) index = consultaveis.length - 1;
 
         const item = consultaveis[index];
-        const user = await getUser(ctx.from.id);
+        let user = await getUser(ctx.from.id);
+        if (!user) user = { total_compras: 0, saldo: 0, id: ctx.from.id };
         
         const isFirstPurchase = parseFloat(user.total_compras) === 0;
         const originalPrice = parseFloat(item.preco);
@@ -65,7 +66,10 @@ module.exports = (bot) => {
 
     bot.action(/^buy_consultavel_(\d+)$/, async (ctx) => {
         const itemId = parseInt(ctx.match[1]);
-        const user = await getUser(ctx.from.id);
+        let user = await getUser(ctx.from.id);
+        if (!user) {
+            return ctx.answerCbQuery('❌ Usuário não encontrado. Envie /start novamente.', { show_alert: true });
+        }
         const consultaveis = await getEstoque('consultaveis');
         const item = consultaveis.find(i => i.id === itemId);
 
@@ -103,7 +107,8 @@ module.exports = (bot) => {
         if (index < 0) index = laras.length - 1;
 
         const item = laras[index];
-        const user = await getUser(ctx.from.id);
+        let user = await getUser(ctx.from.id);
+        if (!user) user = { total_compras: 0, saldo: 0, id: ctx.from.id };
 
         const isFirstPurchase = parseFloat(user.total_compras) === 0;
         const originalPrice = parseFloat(item.preco);
@@ -138,7 +143,10 @@ module.exports = (bot) => {
 
     bot.action(/^buy_lara_(\d+)$/, async (ctx) => {
         const itemId = parseInt(ctx.match[1]);
-        const user = await getUser(ctx.from.id);
+        let user = await getUser(ctx.from.id);
+        if (!user) {
+            return ctx.answerCbQuery('❌ Usuário não encontrado. Envie /start novamente.', { show_alert: true });
+        }
         const laras = await getEstoque('laras');
         const item = laras.find(i => i.id === itemId);
 
