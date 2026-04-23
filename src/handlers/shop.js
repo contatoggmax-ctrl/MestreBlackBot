@@ -45,7 +45,7 @@ module.exports = (bot) => {
                      `Item ${index + 1} de ${consultaveis.length}\n` +
                      `⚠ Passe para o próximo para ver as melhores opções possíveis!`;
         
-        ctx.editMessageText(text, { parse_mode: 'Markdown', ...consultaveisKeyboard(index, consultaveis.length, item.id) }).catch(() => {});
+        ctx.editMessageText(text, { parse_mode: 'HTML', ...consultaveisKeyboard(index, consultaveis.length, item.id) }).catch((e) => console.error("Erro render consultaveis:", e));
     };
 
     bot.action('shop_consultaveis', (ctx) => renderConsultavel(ctx, 0));
@@ -79,13 +79,13 @@ module.exports = (bot) => {
 
         if (transacao.success) {
             const purchasedItem = transacao.item;
-            const msgText = `✅ **COMPRA APROVADA** ✅\n\n` +
-                            `💳 **Card:** ${purchasedItem.bin} ${purchasedItem.validade} ${purchasedItem.cvv}\n` +
-                            `🏦 **Banco:** ${purchasedItem.banco}\n` +
-                            `⭐ **Limite:** R$ ${purchasedItem.limite}\n\n` +
+            const msgText = `✅ <b>COMPRA APROVADA</b> ✅\n\n` +
+                            `💳 <b>Card:</b> ${purchasedItem.bin} ${purchasedItem.validade} ${purchasedItem.cvv}\n` +
+                            `🏦 <b>Banco:</b> ${purchasedItem.banco}\n` +
+                            `⭐ <b>Limite:</b> R$ ${purchasedItem.limite}\n\n` +
                             `Obrigado pela preferência!`;
             
-            ctx.editMessageText(msgText, { parse_mode: 'Markdown', ...shopKeyboard() }).catch(() => {});
+            ctx.editMessageText(msgText, { parse_mode: 'HTML', ...shopKeyboard() }).catch((e) => console.error("Erro tela compra:", e));
         } else {
             ctx.answerCbQuery(`❌ ${transacao.message}`, { show_alert: true });
         }
@@ -107,18 +107,18 @@ module.exports = (bot) => {
 
         const precoFinal = parseFloat(item.preco);
 
-        const text = `🏦 *${item.tipo}* 🏦\n` +
-                     `👤 *Titular:* ${item.titular}\n` +
-                     `🆔 *CPF:* ${item.cpf}\n` +
-                     `🎂 *Nascimento:* ${item.nascimento}\n` +
-                     `📌 *Status:* ${item.status_conta}\n` +
-                     `📊 *SCORE:* ${item.score}\n` +
-                     `💸 *Limite diário:* R$ ${item.limite_diario}\n` +
-                     `🛜 *Condição*: ${item.condicao}\n\n` +
+        const text = `🏦 <b>${item.tipo}</b> 🏦\n` +
+                     `👤 <b>Titular:</b> ${item.titular}\n` +
+                     `🆔 <b>CPF:</b> ${item.cpf}\n` +
+                     `🎂 <b>Nascimento:</b> ${item.nascimento}\n` +
+                     `📌 <b>Status:</b> ${item.status_conta}\n` +
+                     `📊 <b>SCORE:</b> ${item.score}\n` +
+                     `💸 <b>Limite diário:</b> R$ ${item.limite_diario}\n` +
+                     `🛜 <b>Condição:</b> ${item.condicao}\n\n` +
                      `Valor: R$ ${precoFinal.toFixed(2).replace('.', ',')}\n` +
                      `${index + 1} de ${laras.length}`;
         
-        ctx.editMessageText(text, { parse_mode: 'Markdown', ...larasKeyboard(index, laras.length, item.id) }).catch(() => {});
+        ctx.editMessageText(text, { parse_mode: 'HTML', ...larasKeyboard(index, laras.length, item.id) }).catch((e) => console.error("Erro render laras:", e));
     };
 
     bot.action('shop_laras', (ctx) => renderLara(ctx, 0));
@@ -152,15 +152,15 @@ module.exports = (bot) => {
 
         if (transacao.success) {
             const purchasedItem = transacao.item;
-            const msgText = `✅ **COMPRA DE LARA APROVADA** ✅\n\n` +
-                            `🏦 **Titular:** ${purchasedItem.titular}\n` +
-                            `📧 **Email:** ${purchasedItem.email}\n` +
-                            `🔑 **Secret:** ${purchasedItem.secret_key}\n` +
-                            `📲 **Chave 2FA:** ${purchasedItem.chave2fa}\n` +
-                            `🔒 **Senhas:** 4d (${purchasedItem.senha4}) | 6d (${purchasedItem.senha6}) | 8d (${purchasedItem.senha8})\n\n` +
+            const msgText = `✅ <b>COMPRA DE LARA APROVADA</b> ✅\n\n` +
+                            `🏦 <b>Titular:</b> ${purchasedItem.titular}\n` +
+                            `📧 <b>Email:</b> ${purchasedItem.email}\n` +
+                            `🔑 <b>Secret:</b> ${purchasedItem.secret_key}\n` +
+                            `📲 <b>Chave 2FA:</b> ${purchasedItem.chave2fa}\n` +
+                            `🔒 <b>Senhas:</b> 4d (${purchasedItem.senha4}) | 6d (${purchasedItem.senha6}) | 8d (${purchasedItem.senha8})\n\n` +
                             `Obrigado pela preferência! Mantenha estes dados seguros.`;
             
-            ctx.editMessageText(msgText, { parse_mode: 'Markdown', ...shopKeyboard() }).catch(() => {});
+            ctx.editMessageText(msgText, { parse_mode: 'HTML', ...shopKeyboard() }).catch((e) => console.error("Erro tela compra lara:", e));
         } else {
             ctx.answerCbQuery(`❌ ${transacao.message}`, { show_alert: true });
         }
