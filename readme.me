@@ -1,0 +1,28 @@
+# Bot de Vendas de Produtos Digitais (Etapa 1)
+
+## Arquitetura
+A arquitetura do bot foi construída de forma modular para fácil manutenção e escalabilidade.
+
+- **`src/index.js`**: Ponto de entrada do bot, configuração do Telegraf e tratamento de erros globais.
+- **`src/state.js`**: Sistema de sessão em memória, utilizado para saber quando o usuário está digitando um valor de PIX.
+- **`src/data/mock.js`**: Banco de dados mockado contendo Arrays de produtos ('Consultáveis' e 'Laras') e dados do usuário.
+- **`src/utils/keyboards.js`**: Utilitário que gera todos os teclados (Inline Keyboards) seguindo as regras restritas de UI/UX (botões de navegação sempre embaixo, etc).
+- **`src/handlers/`**: Diretório contendo a lógica separada por domínio (`start.js`, `profile.js`, `shop.js`, `payment.js`).
+
+## UI/UX (Teclados Inline)
+Os botões seguem a regra definida:
+1. Botões de ação principais no topo.
+2. Destaque para conversão sozinho numa linha: `[💰 COMPRAR]`.
+3. Navegação SEMPRE na última linha: `[🔙 VOLTAR]`, `[⏮ ANTERIOR]`, `[⏭ PRÓXIMO]`.
+
+## Sistema de Checker (Mock)
+Os itens 'Consultáveis' e 'Laras' possuem no mínimo 3 itens cadastrados para permitir o teste fluido de paginação utilizando 'callback_queries' que carregam o index do array.
+
+## Próximos Passos (Etapa 2)
+Quando a etapa 2 iniciar, o mock de dados será substituído pelo banco real PostgreSQL (via Supabase) e integraremos a API da Skale Pay.
+
+## Como testar:
+1. Crie um arquivo `.env` com a sua variável `BOT_TOKEN`.
+2. Rode `npm install`.
+3. Rode `node src/index.js`.
+4. Envie `/start` para o bot no Telegram.
