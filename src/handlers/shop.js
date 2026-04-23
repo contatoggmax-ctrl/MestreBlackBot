@@ -28,12 +28,8 @@ module.exports = (bot) => {
         let user = await getUser(ctx.from.id);
         if (!user) user = { total_compras: 0, saldo: 0, id: ctx.from.id };
         
-        const isFirstPurchase = parseFloat(user.total_compras) === 0;
-        const originalPrice = parseFloat(item.preco);
-        const precoFinal = isFirstPurchase ? originalPrice * 0.9 : originalPrice;
+        const precoFinal = parseFloat(item.preco);
         const saldo = parseFloat(user.saldo);
-
-        let promoText = isFirstPurchase ? `\n🎁 **DESCONTO PRIMEIRA COMPRA (10% OFF)**` : '';
 
         const text = `${item.bandeira} | ${item.nivel}\n` +
                      `🔢 BIN: ${item.bin}\n` +
@@ -44,7 +40,7 @@ module.exports = (bot) => {
                      `🌎 País: ${item.pais}\n\n` +
                      `👤 Nome: Incluso ${item.nome_incluso ? '✅' : '❌'}\n` +
                      `📝 CPF: Incluso ${item.cpf_incluso ? '✅' : '❌'}\n\n` +
-                     `💲 Preço: R$ ${precoFinal.toFixed(2).replace('.', ',')} ${promoText}\n` +
+                     `💲 Preço: R$ ${precoFinal.toFixed(2).replace('.', ',')}\n` +
                      `💲 Seu Saldo: R$ ${saldo.toFixed(2).replace('.', ',')}\n\n` +
                      `Item ${index + 1} de ${consultaveis.length}\n` +
                      `⚠ Passe para o próximo para ver as melhores opções possíveis!`;
@@ -77,8 +73,7 @@ module.exports = (bot) => {
             return ctx.answerCbQuery('❌ Item não encontrado no estoque atual.', { show_alert: true });
         }
 
-        const isFirstPurchase = parseFloat(user.total_compras) === 0;
-        const precoFinal = isFirstPurchase ? parseFloat(item.preco) * 0.9 : parseFloat(item.preco);
+        const precoFinal = parseFloat(item.preco);
 
         const transacao = await comprarProduto(user.id, 'consultaveis', itemId, precoFinal);
 
@@ -110,10 +105,7 @@ module.exports = (bot) => {
         let user = await getUser(ctx.from.id);
         if (!user) user = { total_compras: 0, saldo: 0, id: ctx.from.id };
 
-        const isFirstPurchase = parseFloat(user.total_compras) === 0;
-        const originalPrice = parseFloat(item.preco);
-        const precoFinal = isFirstPurchase ? originalPrice * 0.9 : originalPrice;
-        let promoText = isFirstPurchase ? `\n🎁 **DESCONTO PRIMEIRA COMPRA (10% OFF)**` : '';
+        const precoFinal = parseFloat(item.preco);
 
         const text = `🏦 *${item.tipo}* 🏦\n` +
                      `👤 *Titular:* ${item.titular}\n` +
@@ -123,7 +115,7 @@ module.exports = (bot) => {
                      `📊 *SCORE:* ${item.score}\n` +
                      `💸 *Limite diário:* R$ ${item.limite_diario}\n` +
                      `🛜 *Condição*: ${item.condicao}\n\n` +
-                     `Valor: R$ ${precoFinal.toFixed(2).replace('.', ',')} ${promoText}\n` +
+                     `Valor: R$ ${precoFinal.toFixed(2).replace('.', ',')}\n` +
                      `${index + 1} de ${laras.length}`;
         
         ctx.editMessageText(text, { parse_mode: 'Markdown', ...larasKeyboard(index, laras.length, item.id) }).catch(() => {});
@@ -154,8 +146,7 @@ module.exports = (bot) => {
             return ctx.answerCbQuery('❌ Item não encontrado no estoque atual.', { show_alert: true });
         }
 
-        const isFirstPurchase = parseFloat(user.total_compras) === 0;
-        const precoFinal = isFirstPurchase ? parseFloat(item.preco) * 0.9 : parseFloat(item.preco);
+        const precoFinal = parseFloat(item.preco);
 
         const transacao = await comprarProduto(user.id, 'laras', itemId, precoFinal);
 

@@ -1,36 +1,54 @@
 const axios = require('axios');
-const { addSaldo } = require('../dbService');
+const dbService = require('../dbService');
 
-const SKALEPAY_URL = 'https://api.skalepay.com.br/api/v1'; // Ajuste conforme a documentação oficial
-const SECRET_KEY = process.env.SKALEPAY_SECRET_KEY;
+const getAuthHeader = () => {
+    const credentials = Buffer.from(`${process.env.SKALEPAY_SECRET_KEY}:x`).toString('base64');
+    return `Basic ${credentials}`;
+};
 
-// Função para gerar o token Basic Auth em Base64
-function getAuthHeader() {
-    const token = Buffer.from(`${SECRET_KEY}:x`).toString('base64');
-    return `Basic ${token}`;
-}
-
-async function generatePix(userId, amount, userEmail = 'cliente@bot.com') {
+async function generatePix(userId, amount) {
     try {
-        const response = await axios.post(`${SKALEPAY_URL}/transactions`, {
-            amount: Math.round(amount * 100), // Enviar em centavos se a API exigir, ou apenas amount
-            payment_method: 'pix',
+        const valorEmCentavos = Math.round(parseFloat(amount) * 100);
+
+        const payload = {
+            amount: valorEmCentavos,
+            paymentMethod: 'pix',
+            externalRef: userId.toString(),
+            postbackUrl: `${process.env.RENDER_URL || 'https://mestreblackbot.onrender.com'}/webhook/skalepay`,
             customer: {
-                email: userEmail
+                name: 'Cliente Telegram',
+                email: 'cliente@bottelegram.com',
+                document: {
+                    number: '00003887693',
+                    type: 'cpf'
+                }
             },
-            externalRef: userId.toString() // O ID do Telegram! Fundamental para o Webhook.
-        }, {
+            items: [
+                {
+                    title: 'Recarga de Saldo',
+                    unitPrice: valorEmCentavos,
+                    quantity: 1,
+                    tangible: false
+                }
+            ],
+            pix: {
+                expiresInDays: 1
+            }
+        };
+
+        const response = await axios.post('https://api.conta.skalepay.com.br/v1/transactions', payload, {
             headers: {
                 'Authorization': getAuthHeader(),
                 'Content-Type': 'application/json'
             }
         });
 
-        // Retorna o qrcode e o código copia e cola (Ajuste os campos conforme o retorno real da API)
+        const data = response.data;
+
+        // data.pix.qrcode is the copy/paste string
         return {
             success: true,
-            qrCodeBase64: response.data.pix_qr_code_base64 || null,
-            copyPaste: response.data.pix_copy_paste || 'PIX_COPIA_COLA_MOCK'
+            copyPaste: data.pix?.qrcode || 'PIX_NAO_GERADO'
         };
     } catch (error) {
         console.error('Erro ao gerar PIX Skale Pay:', error.response ? error.response.data : error.message);
@@ -43,14 +61,13 @@ async function handleWebhook(req, res) {
         const payload = req.body;
         
         // Verifica se é uma transação paga
-        // Os campos dependem da documentação exata da Skale Pay
         if (payload.status === 'paid' || payload.status === 'approved') {
             const userId = payload.externalRef;
-            const amount = parseFloat(payload.amount); // ou payload.amount / 100 se vier em centavos
+            // payload.amount is likely in cents based on Skale Pay standards
+            const amount = parseFloat(payload.amount) / 100;
 
             if (userId && amount) {
-                // Adiciona o saldo ao usuário no banco
-                await addSaldo(userId, amount);
+                await dbService.addSaldo(userId, amount);
                 console.log(`✅ Saldo de R$ ${amount} adicionado ao usuário ${userId} via Webhook Skale Pay.`);
             }
         }
